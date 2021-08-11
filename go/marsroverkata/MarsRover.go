@@ -1,5 +1,7 @@
 package marsrover
 
+import "fmt"
+
 type Coordinates struct {
 	x int
 	y int
@@ -64,7 +66,7 @@ func (r MarsRover) turnLeft() {
 }
 
 func (r MarsRover) currentLocation() interface{} {
-	return ""
+	return fmt.Sprintf("%v %v %v", r.position.x, r.position.y, r.heading)
 }
 
 func (r MarsRover) acceptCommands(commands []Command) {
