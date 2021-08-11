@@ -13,6 +13,7 @@ const (
 	S
 	W
 )
+
 func (d Direction) String() string {
 	return [...]string{"N", "E", "S", "W"}[d]
 }
@@ -35,8 +36,8 @@ type Obstacle struct {
 }
 
 type Plateau struct {
-	maxX int
-	maxY int
+	maxX      int
+	maxY      int
 	obstacles []Obstacle
 }
 
@@ -46,15 +47,16 @@ const (
 	OK Status = iota
 	NOK
 )
+
 func (s Status) String() string {
 	return [...]string{"OK", "NOK"}[s]
 }
 
 type MarsRover struct {
-	plateau Plateau
-	heading Direction
+	plateau  Plateau
+	heading  Direction
 	position Coordinates
-	status Status
+	status   Status
 }
 
 func (r MarsRover) turnLeft() {
