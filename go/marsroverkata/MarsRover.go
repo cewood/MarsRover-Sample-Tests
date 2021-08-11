@@ -81,7 +81,7 @@ func (r MarsRover) acceptCommands(commands []Command) {
 }
 
 func (r MarsRover) coordinates() Coordinates {
-	return Coordinates{0, 0}
+	return r.position
 }
 
 func (r MarsRover) forward() {
