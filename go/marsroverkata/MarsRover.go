@@ -84,15 +84,56 @@ func (r MarsRover) coordinates() Coordinates {
 	return r.position
 }
 
-func (r MarsRover) forward() {
+func (r *MarsRover) move(direction Direction) {
+	pos := r.position
 
+	switch d := direction; d {
+	case N:
+		if r.position.y == r.plateau.maxY {
+			pos.y = 0
+		} else {
+			pos.y++
+		}
+	case S:
+		if r.position.y == 0 {
+			pos.y = r.plateau.maxY
+		} else {
+			pos.y--
+		}
+	case E:
+		if r.position.x == r.plateau.maxX {
+			pos.x = 0
+		} else {
+			pos.x++
+		}
+	case W:
+		if r.position.x == 0 {
+			pos.x = r.plateau.maxX
+		} else {
+			pos.x--
+		}
+	}
+
+	// check if the proposed location has an obstacle
+	for _, obstacle := range r.plateau.obstacles {
+		if pos == obstacle.position {
+			r.status = NOK
+			return
+		}
+	}
+
+	r.position = pos
+	r.status = OK
 }
 
-func (r MarsRover) backward() {
-
+func (r *MarsRover) forward() {
+	r.move(r.heading)
 }
 
-func (r MarsRover) turnRight() {
+func (r *MarsRover) backward() {
+	// Nasty inline slice of opposite directions
+	r.move([...]Direction{S, W, N, E}[r.heading])
+}
 
 func (r *MarsRover) turnRight() {
 	switch {
