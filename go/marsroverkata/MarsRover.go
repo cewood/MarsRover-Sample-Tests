@@ -61,8 +61,15 @@ type MarsRover struct {
 	status   Status
 }
 
-func (r MarsRover) turnLeft() {
-
+func (r *MarsRover) turnLeft() {
+	switch {
+	case r.heading == N:
+		// Turning from N to W, hence reset/jump to 3
+		r.heading = 3
+	default:
+		// Default, decrement the value
+		r.heading--
+	}
 }
 
 func (r MarsRover) currentLocation() interface{} {
@@ -87,4 +94,13 @@ func (r MarsRover) backward() {
 
 func (r MarsRover) turnRight() {
 
+func (r *MarsRover) turnRight() {
+	switch {
+	case r.heading == 3:
+		// Turning from W to N, hence reset/jump to 0
+		r.heading = 0
+	default:
+		// Default, increment the value
+		r.heading++
+	}
 }
