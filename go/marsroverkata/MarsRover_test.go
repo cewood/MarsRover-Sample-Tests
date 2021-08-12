@@ -317,3 +317,62 @@ func TestMarsRover_move(t *testing.T) {
 		})
 	}
 }
+
+func TestMarsRover_acceptCommands(t *testing.T) {
+	tests := []struct {
+		name       string
+		obstacles  []Obstacle
+		commands   []Command
+		expHeading Direction
+		expCoords  Coordinates
+		expStatus  Status
+	}{
+		{
+			"normal case, moving in single direction",
+			[]Obstacle{},
+			[]Command{F, F},
+			N,
+			Coordinates{0, 2},
+			OK,
+		},
+		{
+			"obstruction case, moving in single direction",
+			[]Obstacle{{Coordinates{0, 2}}},
+			[]Command{F, F},
+			N,
+			Coordinates{0, 1},
+			NOK,
+		},
+		{
+			"normal case, moving multiple directions",
+			[]Obstacle{},
+			[]Command{F, F, R, F, F, R, F, F, R, F, F},
+			W,
+			Coordinates{0, 0},
+			OK,
+		},
+		{
+			"obstruction case, moving multiple directions",
+			[]Obstacle{{Coordinates{1, 0}}},
+			[]Command{F, F, R, F, F, R, F, F, R, F, F},
+			W,
+			Coordinates{2, 0},
+			NOK,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			plateau := Plateau{maxX: 5, maxY: 5, obstacles: tt.obstacles}
+			r := &MarsRover{
+				plateau:  plateau,
+				heading:  N,
+				position: Coordinates{0, 0},
+			}
+			r.acceptCommands(tt.commands)
+
+			if r.position != tt.expCoords || r.heading != tt.expHeading || r.status != tt.expStatus {
+				t.Errorf("Expected '%v' '%v' '%v', but got '%v' '%v' '%v'\n", tt.expCoords, tt.expHeading, tt.expStatus, r.position, r.heading, r.status)
+			}
+		})
+	}
+}

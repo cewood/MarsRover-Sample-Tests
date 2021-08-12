@@ -76,8 +76,23 @@ func (r MarsRover) currentLocation() interface{} {
 	return fmt.Sprintf("%v %v %v", r.position.x, r.position.y, r.heading)
 }
 
-func (r MarsRover) acceptCommands(commands []Command) {
+func (r *MarsRover) acceptCommands(commands []Command) {
+	for _, c := range commands {
+		if r.status == NOK {
+			return
+		}
 
+		switch {
+		case c == B:
+			r.backward()
+		case c == F:
+			r.forward()
+		case c == L:
+			r.turnLeft()
+		case c == R:
+			r.turnRight()
+		}
+	}
 }
 
 func (r MarsRover) coordinates() Coordinates {
