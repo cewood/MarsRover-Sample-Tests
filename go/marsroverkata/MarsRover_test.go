@@ -376,3 +376,131 @@ func TestMarsRover_acceptCommands(t *testing.T) {
 		})
 	}
 }
+
+func TestMarsRover_printResultHeader(t *testing.T) {
+	tests := []struct {
+		name  string
+		input Plateau
+		want  string
+	}{
+		{
+			"5x5 plateau",
+			Plateau{maxX: 5, maxY: 5, obstacles: []Obstacle{}},
+			"   0 1 2 3 4\n",
+		},
+		{
+			"10x10 plateau",
+			Plateau{maxX: 10, maxY: 10, obstacles: []Obstacle{}},
+			"   0 1 2 3 4 5 6 7 8 9\n",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &MarsRover{
+				plateau:  tt.input,
+				heading:  N,
+				position: Coordinates{0, 0},
+				status:   OK,
+			}
+
+			if got := r.printResultHeader(); got != tt.want {
+				t.Errorf("MarsRover.printResultHeader() = '%v', want '%v'\n", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMarsRover_printResultRow(t *testing.T) {
+	type input struct {
+		plateau   Plateau
+		heading   Direction
+		position  Coordinates
+		obstacles map[string]bool
+	}
+	tests := []struct {
+		name  string
+		input input
+		want  string
+	}{
+		{
+			"5x5 plateau",
+			input{
+				plateau:  Plateau{maxX: 5, maxY: 5, obstacles: []Obstacle{}},
+				heading:  N,
+				position: Coordinates{0, 0},
+				obstacles: map[string]bool{
+					"3:0": true,
+				},
+			},
+			"0 |ᐱ| | |x| | 0\n",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &MarsRover{
+				plateau:  tt.input.plateau,
+				heading:  tt.input.heading,
+				position: tt.input.position,
+				status:   OK,
+			}
+			if got := r.printResultRow(0, tt.input.obstacles); got != tt.want {
+				t.Errorf("MarsRover.printResultRow() = '%v', want '%v'\n", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMarsRover_printResult(t *testing.T) {
+	tests := []struct {
+		name  string
+		input *MarsRover
+		want  string
+	}{
+		{
+			"5x5 plateau",
+			&MarsRover{
+				plateau:  Plateau{maxX: 5, maxY: 5, obstacles: []Obstacle{{Coordinates{2, 2}}}},
+				heading:  N,
+				position: Coordinates{0, 0},
+				status:   OK,
+			},
+			`   0 1 2 3 4
+4 | | | | | | 4
+3 | | | | | | 3
+2 | | |x| | | 2
+1 | | | | | | 1
+0 |ᐱ| | | | | 0
+   0 1 2 3 4
+`,
+		},
+		{
+			"10x10 plateau",
+			&MarsRover{
+				plateau:  Plateau{maxX: 10, maxY: 10, obstacles: []Obstacle{{Coordinates{8, 8}}}},
+				heading:  N,
+				position: Coordinates{0, 0},
+				status:   OK,
+			},
+			`   0 1 2 3 4 5 6 7 8 9
+9 | | | | | | | | | | | 9
+8 | | | | | | | | |x| | 8
+7 | | | | | | | | | | | 7
+6 | | | | | | | | | | | 6
+5 | | | | | | | | | | | 5
+4 | | | | | | | | | | | 4
+3 | | | | | | | | | | | 3
+2 | | | | | | | | | | | 2
+1 | | | | | | | | | | | 1
+0 |ᐱ| | | | | | | | | | 0
+   0 1 2 3 4 5 6 7 8 9
+`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.input.printResult(); got != tt.want {
+				t.Errorf("MarsRover.printResult() = '%v', want '%v'\n", got, tt.want)
+			}
+		})
+	}
+}

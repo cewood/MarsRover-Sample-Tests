@@ -61,6 +61,94 @@ type MarsRover struct {
 	status   Status
 }
 
+func (r MarsRover) printResultHeader() string {
+	buf := make([]byte, 0)
+
+	// Add our line padding for alignment
+	buf = append(buf, []byte("  ")...)
+
+	// Print the column numbers as a header
+	for x := 0; x < r.plateau.maxX; x++ {
+		buf = append(buf, []byte(fmt.Sprintf(" %d", x))...)
+	}
+
+	// Add our line ending
+	buf = append(buf, []byte("\n")...)
+
+	return string(buf)
+}
+
+func (r MarsRover) printResultRow(row int, obstacles map[string]bool) string {
+	buf := make([]byte, 0)
+
+	// Add our line padding for alignment
+	buf = append(buf, []byte(fmt.Sprintf("%d |", row))...)
+
+	obs := make([]Obstacle, 0)
+
+	// Narrow the list of obstacles to check
+	for _, val := range r.plateau.obstacles {
+		if val.position.y == row {
+			obs = append(obs, val)
+		}
+	}
+
+	for x := 0; x < r.plateau.maxX; x++ {
+		// check if there is a rover here
+		if r.position.y == row && r.position.x == x {
+			// determine the direction to print
+			switch heading := r.heading; heading {
+			case N:
+				buf = append(buf, []byte("ᐱ|")...)
+			case E:
+				buf = append(buf, []byte("ᐳ|")...)
+			case S:
+				buf = append(buf, []byte("ᐯ|")...)
+			case W:
+				buf = append(buf, []byte("ᐸ|")...)
+			}
+		} else if _, ok := obstacles[fmt.Sprintf("%d:%d", x, row)]; ok {
+			// check if there is a obstacle here
+			buf = append(buf, []byte("x|")...)
+		} else {
+			// default empty tile case
+			buf = append(buf, []byte(" |")...)
+		}
+	}
+
+	// Add our line ending
+	buf = append(buf, []byte(fmt.Sprintf(" %d\n", row))...)
+
+	return string(buf)
+}
+
+func (r MarsRover) printResult() string {
+	buf := make([]byte, 0)
+	obstacles := make(map[string]bool, 0)
+
+	// Index the obstacles for faster checking
+	for _, val := range r.plateau.obstacles {
+		obstacles[fmt.Sprintf("%d:%d", val.position.x, val.position.y)] = true
+	}
+
+	// Append the header at the top
+	buf = append(buf, []byte(r.printResultHeader())...)
+
+	// Printing is top to bottom, left to right
+	for y := r.plateau.maxY - 1; y >= 0; y-- {
+		buf = append(buf, []byte(r.printResultRow(y, obstacles))...)
+	}
+
+	// Append the header at the bottom
+	buf = append(buf, []byte(r.printResultHeader())...)
+
+	return string(buf)
+}
+
+func (r MarsRover) PrintResult() {
+	fmt.Print(r.printResult())
+}
+
 func (r *MarsRover) turnLeft() {
 	switch {
 	case r.heading == N:
